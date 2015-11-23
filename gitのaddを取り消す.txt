@@ -1,0 +1,168 @@
+・git の add を取り消す
+git reset HEAD sample.txt
+カレントディレクトリ以下全てのファイルを対象
+git reset HEAD .
+
+
+・コミットを取り消したい場合
+ワークディレクトリの内容はそのままでコミットだけを取り消したい場合に使用します。
+git reset --soft HEAD^
+git reset --soft HEAD~
+
+
+・コミットを取り消し、ツリーも戻したい場合
+git reset --hard HEAD~
+
+
+・直前にしたコミットをやり直す（文言を変更する）
+git commit --amend
+
+
+
+まず、HEADとは「今いるブランチの最新コミット」のことですね。
+つまり「git show HEAD」とすれば最新のコミット情報が見れることになります。
+git show HEAD
+
+一つ前のコミットをみたいとき
+git show HEAD^
+git show HEAD~
+q:終了
+
+
+
+E:\git66 [master]> git checkout br01
+Branch br01 set up to track remote branch br01 from origin.
+Switched to a new branch 'br01'
+
+E:\git66 [br02]> git checkout -b br04
+Switched to a new branch 'br04'
+E:\git66 [br04]> git branch
+  br01
+  br02
+* br04
+  master
+
+E:\git66 [master]> git branch -r
+  origin/HEAD -> origin/master
+  origin/ari
+  origin/br01
+  origin/br02
+  origin/master
+  origin/testing
+  origin/toyo
+
+E:\git66 [br04]> git branch
+  br01
+  br02
+* br04
+  master
+
+
+
+
+＜ブランチにファイルを上げる＞
+・すべてのブランチをクローン
+E:\> git clone https://github.com/tarimura/rep01ta.git git77
+Cloning into 'git77'...
+remote: Counting objects: 70, done.
+remote: Compressing objects: 100% (3/3), done.
+remote: Total 70 (delta 0), reused 0 (delta 0), pack-reused 67
+Unpacking objects: 100% (70/70), done.
+Checking connectivity... done.
+
+・目的のブランチに切り替える
+リモートのブランチをリストアップ
+E:\git77 [master]> git branch -r
+  origin/HEAD -> origin/master
+  origin/ari
+  origin/br01
+  origin/br02
+  origin/master
+  origin/testing
+  origin/toyo
+  
+目的のブランチに切り替える
+E:\git77 [master]> git checkout br02
+Branch br02 set up to track remote branch br02 from origin.
+Switched to a new branch 'br02'
+E:\git77 [br02]> git branch
+* br02
+  master
+  
+・ファイル追加/編集を行う
+・アッド
+E:\git77 [br02 +1 ~0 -0 !]> git add .
+・コミット
+E:\git77 [br02 +1 ~0 -0]> git commit
+・プッシュ
+E:\git77 [br02]> git push
+To https://github.com/tarimura/rep01ta.git
+   92d151b..2fb9b9a  br02 -> br02
+
+
+
+
+＜repo＞
+＜Repoの初期化＞
+まず、リポジトリ群を展開したいディレクトリを作成、移動します。
+展開先に移動したらrepo initコマンドを実行します。
+repo init -u gitのURI -b ブランチ名
+
+サンプルのマニフェストでは以下のようになります。
+repo init -u git://hogehoge.com/HogehogeProject/manifest.git
+
+-uオプション
+マニフェストのgitリポジトリを指定します。
+先程の例ではHogehogeProjectディレクトリ以下にmanifest.gitというリポジトリで
+-u git://hogehoge.com/HogehogeProject/manifest.git
+
+-bオプション
+取得するブランチ名を設定します。
+ここで設定するのは マニフェスト用のリポジトリのブランチ です。
+取得したいリポジトリ群のブランチを指定しても駄目です。
+default.xmlの設定を書き換えてブランチを切っている場合などに使います。
+指定しない場合はmaterを取ってきます。
+
+
+指定したproject全部に対してローカルブランチを作成します。
+repo start <newbranchname> [--all | <project>...]
+
+最後に指定したリビジョンで、リモートリポジトリからアップデートを行います。
+repo sync [<project>...]
+
+レビューサーバへアップします。修正が終わってレビュー依頼するときに使います。 送信先はマニフェストファイルの review に書かれたURLです。
+repo upload [--re --cc] [<project>]...
+
+
+
+・ローカルで普通に削除しちゃったファイルをGitHubに反映させる
+方法１
+git add -u
+git commit -m 'bar.txt削除をgitに反映'
+git push
+
+方法２
+git rm bar.txt  ←物理ファイルが無くてもエラーにならない
+git commit -m 'bar.txt削除をgitに反映'
+git push
+
+ファイルを削除したいとき?
+$ git rm [削除したいファイル]
+
+ディレクトリごと逝きたいとき?
+$ git rm -r [削除したいディレクトリ]
+
+
+・git add -A と git add . と git add -u の違い
+
+結論から言えば、git add -A は git add . と git add -u を足したものです。
+git add . はワーキングツリーに新規作成された、もしくは変更されたファイルをaddします。
+つまり、rmコマンドなどで削除されたファイルはaddされません。
+git add -u は一つ前と最新のステージを比較して、変更があった部分のみをaddします。
+つまり、新しく作られたファイルはaddされません。
+最初にも述べたように、git add -A は git add . と git add -u を足したものですから、
+新規作成、修正、削除といった全てのファイルをaddします。
+
+
+
+
